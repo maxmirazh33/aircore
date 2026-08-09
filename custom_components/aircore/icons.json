@@ -1,0 +1,92 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "compressor": {
+        "default": "mdi:hvac",
+        "state": {
+          "off": "mdi:hvac-off"
+        }
+      }
+    },
+    "climate": {
+      "ac": {
+        "default": "mdi:air-conditioner",
+        "state_attributes": {
+          "fan_mode": {
+            "state": {
+              "auto": "mdi:fan-auto",
+              "low": "mdi:fan-speed-1",
+              "medium": "mdi:fan-speed-2",
+              "high": "mdi:fan-speed-3",
+              "mute": "mdi:fan-minus",
+              "turbo": "mdi:fan-plus"
+            }
+          },
+          "swing_mode": {
+            "state": {
+              "top": "mdi:arrow-up",
+              "middle1": "mdi:arrow-top-right",
+              "middle2": "mdi:arrow-right",
+              "middle3": "mdi:arrow-bottom-right",
+              "bottom": "mdi:arrow-down",
+              "swing": "mdi:arrow-up-down",
+              "auto": "mdi:autorenew"
+            }
+          },
+          "swing_horizontal_mode": {
+            "state": {
+              "off": "mdi:arrow-oscillating-off",
+              "swing": "mdi:arrow-oscillating"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "ambient_temperature": {
+        "default": "mdi:home-thermometer"
+      },
+      "coil_temperature": {
+        "default": "mdi:coolant-temperature"
+      },
+      "compressor_load": {
+        "default": "mdi:gauge"
+      },
+      "fan_speed": {
+        "default": "mdi:fan"
+      },
+      "mode": {
+        "default": "mdi:air-conditioner"
+      },
+      "swing": {
+        "default": "mdi:arrow-up-down"
+      },
+      "swing_horizontal": {
+        "default": "mdi:arrow-oscillating"
+      },
+      "target_temperature": {
+        "default": "mdi:thermometer-lines"
+      }
+    },
+    "switch": {
+      "clean": {
+        "default": "mdi:spray-bottle"
+      },
+      "display": {
+        "default": "mdi:television-ambient-light"
+      },
+      "health": {
+        "default": "mdi:air-purifier"
+      },
+      "ifeel": {
+        "default": "mdi:thermometer-auto"
+      },
+      "mildew": {
+        "default": "mdi:weather-windy"
+      },
+      "sleep": {
+        "default": "mdi:sleep"
+      }
+    }
+  }
+}

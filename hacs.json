@@ -1,0 +1,7 @@
+{
+  "name": "AirCore (Broadlink air conditioners: AUX, Zanussi, Ballu, Rovex, Tornado, Electrolux)",
+  "content_in_root": false,
+  "render_readme": true,
+  "homeassistant": "2024.8.0",
+  "zip_release": false
+}

@@ -1,0 +1,45 @@
+[project]
+name = "aircore"
+version = "1.0.0"
+description = "Broadlink air conditioner integration for Home Assistant"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+    "RUF",
+    "ASYNC",
+    "T20",
+]
+ignore = [
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    "RUF012",
+]
+
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+addopts = "--import-mode=importlib --cov --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["custom_components/aircore"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true

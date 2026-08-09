@@ -1,0 +1,161 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Broadlink air conditioner",
+        "description": "Devices found on the network. Choose manual entry if yours is missing.",
+        "data": {
+          "device": "Device",
+          "name": "Name"
+        }
+      },
+      "manual": {
+        "title": "Enter address manually",
+        "description": "Enter the address of the air conditioner; the MAC is read from the device itself. The address can be found in your router's client list.",
+        "data": {
+          "name": "Name",
+          "host": "IP address"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Device does not respond: check the address and that it is online"
+    },
+    "abort": {
+      "already_configured": "This device is already added",
+      "cannot_connect": "Device does not respond"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling settings",
+        "data": {
+          "scan_interval_state": "Settings poll, seconds",
+          "scan_interval_sensor": "Sensor poll, seconds",
+          "extra_sensors": "Compressor and coil sensors",
+          "debug_packets": "Debug mode (log raw packets)",
+          "timeout": "Response timeout, seconds"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "compressor": {
+        "name": "Compressor"
+      }
+    },
+    "sensor": {
+      "compressor_load": {
+        "name": "Compressor output"
+      },
+      "coil_temperature": {
+        "name": "Coil temperature"
+      },
+      "ambient_temperature": {
+        "name": "Air temperature"
+      },
+      "target_temperature": {
+        "name": "Target temperature"
+      },
+      "mode": {
+        "name": "Mode",
+        "state": {
+          "off": "Off",
+          "auto": "Auto",
+          "cool": "Cooling",
+          "dry": "Drying",
+          "heat": "Heating",
+          "fan_only": "Fan"
+        }
+      },
+      "fan_speed": {
+        "name": "Fan speed",
+        "state": {
+          "auto": "Auto",
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High",
+          "mute": "Mute",
+          "turbo": "Turbo"
+        }
+      },
+      "swing": {
+        "name": "Vertical swing",
+        "state": {
+          "top": "Top",
+          "middle1": "Upper middle",
+          "middle2": "Middle",
+          "middle3": "Lower middle",
+          "bottom": "Bottom",
+          "swing": "Swing",
+          "auto": "Auto"
+        }
+      },
+      "swing_horizontal": {
+        "name": "Horizontal swing",
+        "state": {
+          "off": "Off",
+          "swing": "Swing"
+        }
+      }
+    },
+    "switch": {
+      "display": {
+        "name": "Display"
+      },
+      "sleep": {
+        "name": "Sleep mode"
+      },
+      "health": {
+        "name": "Ionizer"
+      },
+      "clean": {
+        "name": "Self-clean"
+      },
+      "mildew": {
+        "name": "Dry after shutdown"
+      },
+      "ifeel": {
+        "name": "Remote thermometer"
+      }
+    },
+    "climate": {
+      "ac": {
+        "state_attributes": {
+          "fan_mode": {
+            "name": "Fan speed",
+            "state": {
+              "auto": "Auto",
+              "low": "Low",
+              "medium": "Medium",
+              "high": "High",
+              "mute": "Mute",
+              "turbo": "Turbo"
+            }
+          },
+          "swing_mode": {
+            "name": "Vertical swing",
+            "state": {
+              "top": "Top",
+              "middle1": "Upper middle",
+              "middle2": "Middle",
+              "middle3": "Lower middle",
+              "bottom": "Bottom",
+              "swing": "Swing",
+              "auto": "Auto"
+            }
+          },
+          "swing_horizontal_mode": {
+            "name": "Horizontal swing",
+            "state": {
+              "off": "Off",
+              "swing": "Swing"
+            }
+          }
+        }
+      }
+    }
+  }
+}

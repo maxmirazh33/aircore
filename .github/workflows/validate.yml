@@ -1,0 +1,82 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  hassfest:
+    name: Home Assistant manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: HACS requirements
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hacs/action@main
+        with:
+          category: integration
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: pip install ruff
+      - run: ruff check custom_components tests
+      - run: ruff format --check custom_components tests
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements-test.txt
+      - run: pytest
+      - name: Badge payload
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          coverage json -o /tmp/coverage.json
+          mkdir -p public
+          python - <<'PY'
+          import json, pathlib
+          percent = json.load(open("/tmp/coverage.json"))["totals"]["percent_covered"]
+          colour = "brightgreen" if percent >= 95 else "green" if percent >= 90 else "yellow"
+          pathlib.Path("public/coverage.json").write_text(json.dumps({
+              "schemaVersion": 1,
+              "label": "coverage",
+              "message": f"{percent:.2f}%",
+              "color": colour,
+          }), encoding="utf-8")
+          PY
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          path: public
+
+  badge:
+    name: Publish coverage badge
+    needs: tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

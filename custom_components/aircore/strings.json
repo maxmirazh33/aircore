@@ -74,10 +74,10 @@
         "name": "Fan speed",
         "state": {
           "auto": "Auto",
+          "mute": "Mute",
           "low": "Low",
           "medium": "Medium",
           "high": "High",
-          "mute": "Mute",
           "turbo": "Turbo"
         }
       },
@@ -128,10 +128,10 @@
             "name": "Fan speed",
             "state": {
               "auto": "Auto",
+              "mute": "Mute",
               "low": "Low",
               "medium": "Medium",
               "high": "High",
-              "mute": "Mute",
               "turbo": "Turbo"
             }
           },

@@ -205,3 +205,46 @@ def test_target_temperature_is_clamped(device):
 
     body = send.call_args[0][1][2:25]
     assert body[0x0A] >> 3 == 16 - 8
+
+
+def test_lost_packet_does_not_fail_the_poll(device):
+    """A single lost packet is retried rather than reported as a failure.
+
+    Communication is UDP over WiFi: without the retry every such loss would take the
+    entities to unavailable until the next poll.
+    """
+    device._authenticated = True
+    good = bytes(2) + STATE_SAMPLE
+
+    with (
+        patch.object(device, "_send", side_effect=[AcError("no answer"), good]),
+        patch("custom_components.aircore.device.time.sleep"),
+    ):
+        answer = device.read_state()
+
+    assert answer[0x00] == 0xBB
+
+
+def test_silent_device_still_reports_after_the_retries(device):
+    """A device that keeps quiet is reported once the attempts run out."""
+    device._authenticated = True
+
+    with (
+        patch.object(device, "_send", side_effect=AcError("no answer")),
+        patch("custom_components.aircore.device.time.sleep"),
+        pytest.raises(AcError, match="no answer"),
+    ):
+        device.read_state()
+
+
+def test_write_survives_a_lost_packet(device):
+    """A command is not lost with the packet that carried it."""
+    device._authenticated = True
+
+    with (
+        patch.object(device, "_send", side_effect=[AcError("no answer"), b"\x00" * 40]) as send,
+        patch("custom_components.aircore.device.time.sleep"),
+    ):
+        device.write_state(AcState(power=True, target_temperature=22.0))
+
+    assert send.call_count == 2

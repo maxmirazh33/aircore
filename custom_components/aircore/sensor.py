@@ -90,7 +90,7 @@ SENSORS: tuple[AcSensorDescription, ...] = (
         key="fan_speed",
         translation_key="fan_speed",
         device_class=SensorDeviceClass.ENUM,
-        options=["auto", "low", "medium", "high", "mute", "turbo"],
+        options=["auto", "mute", "low", "medium", "high", "turbo"],
         entity_category=EntityCategory.DIAGNOSTIC,
         value=_fan_speed,
     ),

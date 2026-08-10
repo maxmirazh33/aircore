@@ -68,7 +68,7 @@ class AcClimate(AcEntity, ClimateEntity):
         HVACMode.FAN_ONLY,
         HVACMode.AUTO,
     ]
-    _attr_fan_modes = ["auto", "low", "medium", "high", "mute", "turbo"]
+    _attr_fan_modes = ["auto", "mute", "low", "medium", "high", "turbo"]
     _attr_swing_modes = list(SWING_POSITIONS_INVERT)
     _attr_swing_horizontal_modes = list(SWING_H_POSITIONS_INVERT)
     _attr_translation_key = "ac"

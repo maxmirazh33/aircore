@@ -19,6 +19,7 @@ import time
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from .const import (
+    ATTEMPTS,
     COIL_TEMP_MAX,
     COIL_TEMP_MIN,
     COMPRESSOR_LOAD_FULL,
@@ -27,6 +28,7 @@ from .const import (
     INITIAL_KEY,
     MAX_TEMP,
     MIN_TEMP,
+    RETRY_PAUSE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -198,21 +200,49 @@ class AcDevice:
         body[len(payload) + 3] = crc & 0xFF
         return bytes(body)
 
+    def _attempt(self, payload: bytes, what: str) -> bytes:
+        """Send a request, retrying while the device stays silent.
+
+        Communication is UDP over WiFi, so single packets go missing now and then. One
+        lost packet is not worth reporting as a failure: without a retry every such loss
+        would take the entities to unavailable until the next poll.
+        """
+        error: AcError | None = None
+        for attempt in range(ATTEMPTS):
+            try:
+                return self._request(payload)
+            except AcError as err:
+                error = err
+                _LOGGER.debug("%s: no answer, retry %s (%s)", self.mac, attempt + 1, what)
+                time.sleep(RETRY_PAUSE)
+        raise error
+
     def _read(self, selector: int, minimum: int, what: str) -> bytes:
         """Read a data block.
 
-        The device serves one request at a time and refuses concurrent ones, so a short
-        reply is not treated as an error straight away — the request is retried.
+        Two things get in the way of an answer and both pass on their own: a lost packet
+        and a device busy with another request. Either way the request is repeated.
         """
-        request = bytes([0xBB, 0x00, 0x06, 0x80, 0x00, 0x00, 0x02, 0x00, selector, 0x01])
+        request = self._wrap(
+            bytes([0xBB, 0x00, 0x06, 0x80, 0x00, 0x00, 0x02, 0x00, selector, 0x01])
+        )
         last = b""
-        for attempt in range(3):
-            answer = self._request(self._wrap(request))
+        error: AcError | None = None
+        for attempt in range(ATTEMPTS):
+            try:
+                answer = self._request(request)
+            except AcError as err:
+                error = err
+                _LOGGER.debug("%s: no answer, retry %s (%s)", self.mac, attempt + 1, what)
+                time.sleep(RETRY_PAUSE)
+                continue
             if len(answer) >= minimum and answer[0x04] == 0x07:
                 return answer[2:]
             last = answer
             _LOGGER.debug("%s: device busy, retry %s (%s)", self.mac, attempt + 1, what)
-            time.sleep(1.0 + attempt)
+            time.sleep(RETRY_PAUSE)
+        if error is not None and not last:
+            raise error
         raise AcError(f"device did not return {what}: {last[:8].hex()}")
 
     def read_state(self) -> bytes:
@@ -255,7 +285,7 @@ class AcDevice:
         payload[0x14] = (int(state.display) << 4) | (int(state.mildew) << 3)
 
         with self._busy:
-            self._request(self._wrap(bytes(payload)))
+            self._attempt(self._wrap(bytes(payload)), "settings write")
 
     def parse_state(self, data: bytes, state: AcState) -> AcState:
         """Decode a settings reply."""

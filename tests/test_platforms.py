@@ -102,7 +102,7 @@ async def test_climate_reports_readings(hass: HomeAssistant, setup_integration) 
     assert climate.attributes["current_temperature"] is not None
     assert climate.attributes["fan_mode"] == "mute"
     assert climate.attributes["swing_mode"] == "top"
-    assert climate.attributes["swing_horizontal_mode"] == "swing"
+    assert climate.attributes["swing_horizontal_mode"] == "off"
 
 
 async def test_set_temperature(hass: HomeAssistant, setup_integration, mock_device) -> None:
@@ -177,7 +177,7 @@ async def test_swing_modes(hass: HomeAssistant, setup_integration, mock_device) 
     await hass.services.async_call(
         CLIMATE_DOMAIN,
         SERVICE_SET_SWING_HORIZONTAL_MODE,
-        {ATTR_ENTITY_ID: CLIMATE, ATTR_SWING_HORIZONTAL_MODE: "off"},
+        {ATTR_ENTITY_ID: CLIMATE, ATTR_SWING_HORIZONTAL_MODE: "swing"},
         blocking=True,
     )
     assert mock_device.written[-1].fixation_horizontal == 0
@@ -399,3 +399,28 @@ async def test_mode_off_in_a_temperature_call_switches_off(
     )
 
     assert mock_device.written[-1].power is False
+
+
+async def test_swing_positions_match_the_device(
+    hass: HomeAssistant, setup_integration, mock_device
+) -> None:
+    """Swinging is what the device reports as zero, not as six.
+
+    Asking for six makes the unit answer zero, and an unknown value used to be shown as
+    «auto» — so a swinging louvre was displayed as a fixed automatic position.
+    """
+    await hass.services.async_call(
+        CLIMATE_DOMAIN,
+        SERVICE_SET_SWING_MODE,
+        {ATTR_ENTITY_ID: CLIMATE, ATTR_SWING_MODE: "swing"},
+        blocking=True,
+    )
+    assert mock_device.written[-1].fixation_vertical == 0
+
+    await hass.services.async_call(
+        CLIMATE_DOMAIN,
+        SERVICE_SET_SWING_MODE,
+        {ATTR_ENTITY_ID: CLIMATE, ATTR_SWING_MODE: "auto"},
+        blocking=True,
+    )
+    assert mock_device.written[-1].fixation_vertical == 7

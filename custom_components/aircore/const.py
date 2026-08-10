@@ -53,6 +53,7 @@ COIL_TEMP_MAX = 80.0
 COMPRESSOR_LOAD_FULL = 70
 
 SWING_POSITIONS = {
+    0: "swing",
     1: "top",
     2: "middle1",
     3: "middle2",
@@ -61,7 +62,15 @@ SWING_POSITIONS = {
     6: "swing",
     7: "auto",
 }
-SWING_POSITIONS_INVERT = {v: k for k, v in SWING_POSITIONS.items()}
+SWING_POSITIONS_INVERT = {
+    "swing": 0,
+    "top": 1,
+    "middle1": 2,
+    "middle2": 3,
+    "middle3": 4,
+    "bottom": 5,
+    "auto": 7,
+}
 
 MODE_NAMES = {
     MODE_AUTO: "auto",
@@ -80,7 +89,7 @@ FAN_SPEEDS = {
 FAN_SPEEDS_INVERT = {v: k for k, v in FAN_SPEEDS.items()}
 
 SWING_H_POSITIONS = {
-    0: "off",
-    1: "swing",
+    0: "swing",
+    1: "off",
 }
 SWING_H_POSITIONS_INVERT = {v: k for k, v in SWING_H_POSITIONS.items()}

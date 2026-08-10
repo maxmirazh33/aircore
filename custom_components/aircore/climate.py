@@ -70,7 +70,7 @@ class AcClimate(AcEntity, ClimateEntity):
         HVACMode.AUTO,
     ]
     _attr_fan_modes = ["auto", "mute", "low", "medium", "high", "turbo"]
-    _attr_swing_modes = list(SWING_POSITIONS_INVERT)
+    _attr_swing_modes = ["auto", "swing", "top", "middle1", "middle2", "middle3", "bottom"]
     _attr_swing_horizontal_modes = list(SWING_H_POSITIONS_INVERT)
     _attr_translation_key = "ac"
     _attr_supported_features = (
@@ -111,7 +111,7 @@ class AcClimate(AcEntity, ClimateEntity):
 
     @property
     def swing_mode(self) -> str:
-        return SWING_POSITIONS.get(self.coordinator.state.fixation_vertical, "auto")
+        return SWING_POSITIONS.get(self.coordinator.state.fixation_vertical, "swing")
 
     @property
     def swing_horizontal_mode(self) -> str:

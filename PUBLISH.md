@@ -52,6 +52,6 @@ must be public and have a description, topics, `hacs.json` and brand assets.
 
 ## 5. Brand in Home Assistant
 
-For the icon to appear in the interface, images go in a separate pull request to
-`home-assistant/brands`: directory `custom_integrations/aircore/` with `icon.png` and
-`logo.png`. Ready-made ones live in `custom_components/aircore/brand/`.
+Nothing to submit. Since Home Assistant 2026.3 a custom integration serves its own
+images from `custom_components/aircore/brand/`, and they take precedence over the CDN.
+A pull request to `home-assistant/brands` is only needed for versions older than that.

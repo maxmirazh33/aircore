@@ -92,4 +92,5 @@ class AcCoordinator(DataUpdateCoordinator[AcState]):
             self.async_update_listeners()
             raise HomeAssistantError(f"The device rejected the command: {err}") from err
 
+        self.async_update_listeners()
         await self.async_request_refresh()

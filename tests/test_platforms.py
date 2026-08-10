@@ -356,3 +356,46 @@ async def test_debug_mode_logs_packets(
 
     assert STATE_SAMPLE.hex() in caplog.text
     assert SENSOR_WORKING.hex() in caplog.text
+
+
+async def test_temperature_and_mode_arrive_together(
+    hass: HomeAssistant, setup_integration, mock_device
+) -> None:
+    """A single call may carry the mode alongside the temperature.
+
+    Automations switch a unit on exactly this way — set the target and the mode in one
+    service call. Ignoring the mode left the unit off while it beeped, having accepted
+    the packet.
+    """
+    await hass.services.async_call(
+        CLIMATE_DOMAIN,
+        SERVICE_SET_HVAC_MODE,
+        {ATTR_ENTITY_ID: CLIMATE, ATTR_HVAC_MODE: HVACMode.OFF},
+        blocking=True,
+    )
+
+    await hass.services.async_call(
+        CLIMATE_DOMAIN,
+        SERVICE_SET_TEMPERATURE,
+        {ATTR_ENTITY_ID: CLIMATE, ATTR_TEMPERATURE: 22.0, ATTR_HVAC_MODE: HVACMode.COOL},
+        blocking=True,
+    )
+
+    written = mock_device.written[-1]
+    assert written.power is True
+    assert written.mode == 1
+    assert written.target_temperature == 22.0
+
+
+async def test_mode_off_in_a_temperature_call_switches_off(
+    hass: HomeAssistant, setup_integration, mock_device
+) -> None:
+    """The same call with an off mode switches the unit off rather than just retargeting."""
+    await hass.services.async_call(
+        CLIMATE_DOMAIN,
+        SERVICE_SET_TEMPERATURE,
+        {ATTR_ENTITY_ID: CLIMATE, ATTR_TEMPERATURE: 22.0, ATTR_HVAC_MODE: HVACMode.OFF},
+        blocking=True,
+    )
+
+    assert mock_device.written[-1].power is False

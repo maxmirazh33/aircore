@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from homeassistant.components.climate import (
+    ATTR_HVAC_MODE,
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
@@ -127,9 +128,28 @@ class AcClimate(AcEntity, ClimateEntity):
         }
 
     async def async_set_temperature(self, **kwargs) -> None:
+        """Set the target temperature, and the mode when it comes along.
+
+        Home Assistant lets a single call carry the mode as well, and leaves it to the
+        integration to apply. Both go to the device in one packet: it takes settings as
+        a block anyway, and a separate mode command would be a second beep.
+        """
+        changes: dict[str, object] = {}
+
+        hvac_mode = kwargs.get(ATTR_HVAC_MODE)
+        if hvac_mode is not None:
+            if hvac_mode == HVACMode.OFF:
+                changes["power"] = False
+            else:
+                changes["power"] = True
+                changes["mode"] = HVAC_TO_MODE[hvac_mode]
+
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is not None:
-            await self.coordinator.async_write(target_temperature=float(temperature))
+            changes["target_temperature"] = float(temperature)
+
+        if changes:
+            await self.coordinator.async_write(**changes)
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         if hvac_mode == HVACMode.OFF:

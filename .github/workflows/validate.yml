@@ -11,14 +11,14 @@ jobs:
     name: Home Assistant manifest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: home-assistant/actions/hassfest@master
 
   hacs:
     name: HACS requirements
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: hacs/action@main
         with:
           category: integration
@@ -27,11 +27,11 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
-      - run: pip install ruff
+      - run: pip install --disable-pip-version-check ruff
       - run: ruff check custom_components tests
       - run: ruff format --check custom_components tests
 
@@ -39,11 +39,11 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
-      - run: pip install -r requirements-test.txt
+      - run: pip install --disable-pip-version-check -r requirements-test.txt
       - run: pytest
       - name: Badge payload
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -61,7 +61,7 @@ jobs:
               "color": colour,
           }), encoding="utf-8")
           PY
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           path: public
@@ -79,4 +79,4 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - id: deploy
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

@@ -97,6 +97,37 @@ def test_coil_heating_range_is_kept(device):
     assert state.coil_temperature == 55.0
 
 
+def test_coil_after_retries_keeps_previous_reading(device):
+    """A reply that needed retries does not overwrite the coil temperature.
+
+    An unstable link makes the device answer with a packet whose sensor block still
+    holds stale bytes: the coil then jumps to forty-odd degrees for a couple of polls
+    and returns on its own. Those jumps reached the history, so a reading that arrived
+    only after a retry is no longer trusted.
+    """
+    state = AcState()
+    device.parse_sensor(SENSOR_WORKING, state)
+    settled = state.coil_temperature
+
+    device._retries = 2
+    packet = bytearray(SENSOR_WORKING)
+    packet[0x10] = 86
+    device.parse_sensor(bytes(packet), state)
+
+    assert state.coil_temperature == settled
+
+
+def test_coil_on_first_answer_is_taken(device):
+    """A reply that came at once is trusted as before."""
+    state = AcState()
+    device._retries = 0
+    packet = bytearray(SENSOR_WORKING)
+    packet[0x10] = 40
+    device.parse_sensor(bytes(packet), state)
+
+    assert state.coil_temperature == 20.0
+
+
 def test_parse_sensor_rejects_short_packet(device):
     """A reply that is too short is an error, not something to decode."""
     with pytest.raises(AcError):

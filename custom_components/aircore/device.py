@@ -101,6 +101,16 @@ class AcDevice:
         self._counter = random.randint(0, 0xFFFF)
         self._authenticated = False
         self._busy = threading.Lock()
+        self._retries = 0
+
+    @property
+    def answered_first_time(self) -> bool:
+        """Whether the last read came back on the first try.
+
+        A reply that needed retries arrives from a device whose link is unstable, and
+        such packets have been seen carrying stale bytes in the sensor block.
+        """
+        return self._retries == 0
 
     @property
     def authenticated(self) -> bool:
@@ -228,17 +238,20 @@ class AcDevice:
         )
         last = b""
         error: AcError | None = None
+        self._retries = 0
         for attempt in range(ATTEMPTS):
             try:
                 answer = self._request(request)
             except AcError as err:
                 error = err
+                self._retries += 1
                 _LOGGER.debug("%s: no answer, retry %s (%s)", self.mac, attempt + 1, what)
                 time.sleep(RETRY_PAUSE)
                 continue
             if len(answer) >= minimum and answer[0x04] == 0x07:
                 return answer[2:]
             last = answer
+            self._retries += 1
             _LOGGER.debug("%s: device busy, retry %s (%s)", self.mac, attempt + 1, what)
             time.sleep(RETRY_PAUSE)
         if error is not None and not last:
@@ -338,7 +351,15 @@ class AcDevice:
             )
 
         coil = data[0x10] / 2
-        if COIL_TEMP_MIN <= coil <= COIL_TEMP_MAX:
+        if not self.answered_first_time:
+            _LOGGER.debug(
+                "%s: the reply took %s retries, so the coil temperature %s is not "
+                "trusted — the previous reading is kept",
+                self.mac,
+                self._retries,
+                coil,
+            )
+        elif COIL_TEMP_MIN <= coil <= COIL_TEMP_MAX:
             state.coil_temperature = coil
         else:
             state.coil_temperature = None

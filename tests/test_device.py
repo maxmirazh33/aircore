@@ -174,6 +174,26 @@ def test_read_state_retries_when_busy(device):
     assert answer[0x02] == 0x07
 
 
+def test_read_state_ignores_a_reply_to_another_request(device):
+    """A late sensor reply must not be decoded as settings.
+
+    The transport is UDP: an answer to the previous request can arrive while the next
+    one is in flight. Decoded as settings, a sensor block yields a plausible but wrong
+    state — turbo, ionizer and a target of 36 degrees out of nowhere.
+    """
+    device._authenticated = True
+    stray = bytes(2) + SENSOR_WORKING
+    good = bytes(2) + STATE_SAMPLE
+
+    with (
+        patch.object(device, "_send", side_effect=[stray, good]),
+        patch("custom_components.aircore.device.time.sleep"),
+    ):
+        answer = device.read_state()
+
+    assert answer[0x09] == 0x11
+
+
 def test_compressor_ignored_when_device_is_off(device):
     """Compressor activity on a powered-off device means a foreign byte layout.
 

@@ -230,8 +230,11 @@ class AcDevice:
     def _read(self, selector: int, minimum: int, what: str) -> bytes:
         """Read a data block.
 
-        Two things get in the way of an answer and both pass on their own: a lost packet
-        and a device busy with another request. Either way the request is repeated.
+        Three things get in the way of an answer and all pass on their own: a lost packet,
+        a device busy with another request, and a reply to the previous request arriving
+        late. The transport is UDP, so a late sensor reply can land in the middle of a
+        settings read and would be decoded as settings — the selector echoed by the
+        device is checked to tell the blocks apart. Either way the request is repeated.
         """
         request = self._wrap(
             bytes([0xBB, 0x00, 0x06, 0x80, 0x00, 0x00, 0x02, 0x00, selector, 0x01])
@@ -249,7 +252,16 @@ class AcDevice:
                 time.sleep(RETRY_PAUSE)
                 continue
             if len(answer) >= minimum and answer[0x04] == 0x07:
-                return answer[2:]
+                if answer[0x0B] == selector:
+                    return answer[2:]
+                _LOGGER.debug(
+                    "%s: reply carries selector %#04x instead of %#04x, retry %s (%s)",
+                    self.mac,
+                    answer[0x0B],
+                    selector,
+                    attempt + 1,
+                    what,
+                )
             last = answer
             self._retries += 1
             _LOGGER.debug("%s: device busy, retry %s (%s)", self.mac, attempt + 1, what)

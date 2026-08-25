@@ -41,7 +41,6 @@ class AcSensorDescription(SensorEntityDescription):
     """Measurement description and how to obtain it."""
 
     value: Callable[[AcState], float | str | None]
-    needs_trust: bool = False
 
 
 SENSORS: tuple[AcSensorDescription, ...] = (
@@ -50,7 +49,6 @@ SENSORS: tuple[AcSensorDescription, ...] = (
         translation_key="compressor_load",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        needs_trust=True,
         value=lambda state: state.compressor_load,
     ),
     AcSensorDescription(
@@ -138,7 +136,4 @@ class AcSensor(AcEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | str | None:
-        state = self.coordinator.state
-        if self.entity_description.needs_trust and not state.extras_trusted:
-            return None
-        return self.entity_description.value(state)
+        return self.entity_description.value(self.coordinator.state)

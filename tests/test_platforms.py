@@ -230,10 +230,10 @@ async def test_compressor_reported(hass: HomeAssistant, setup_integration) -> No
     assert hass.states.get("sensor.air_conditioner_compressor_output").state != STATE_UNKNOWN
 
 
-async def test_untrusted_extras_are_empty(
+async def test_compressor_idle_while_the_device_is_off(
     hass: HomeAssistant, mock_config_entry, mock_device
 ) -> None:
-    """On a foreign byte layout the compressor sensors stay empty instead of lying."""
+    """A residual load byte on a powered-off device reads as an idle compressor."""
     packet = bytearray(SENSOR_WORKING)
     packet[0x18] = 40
     off = bytearray(STATE_SAMPLE)
@@ -253,8 +253,8 @@ async def test_untrusted_extras_are_empty(
         await hass.config_entries.async_setup(mock_config_entry.entry_id)
         await hass.async_block_till_done()
 
-    assert hass.states.get("binary_sensor.air_conditioner_compressor").state == STATE_UNKNOWN
-    assert hass.states.get("sensor.air_conditioner_compressor_output").state == STATE_UNKNOWN
+    assert hass.states.get("binary_sensor.air_conditioner_compressor").state == STATE_OFF
+    assert hass.states.get("sensor.air_conditioner_compressor_output").state == "0"
 
 
 async def test_extra_sensors_can_be_disabled(

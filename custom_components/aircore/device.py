@@ -64,7 +64,6 @@ class AcState:
     compressor: bool = False
     compressor_load: int | None = None
     coil_temperature: float | None = None
-    extras_trusted: bool = True
     raw_state: bytes | None = field(default=None, repr=False)
     raw_sensor: bytes | None = field(default=None, repr=False)
 
@@ -350,14 +349,12 @@ class AcDevice:
         if state.power or raw_load == 0:
             state.compressor = bool(raw_load)
             state.compressor_load = min(round(raw_load * 100 / COMPRESSOR_LOAD_FULL), 100)
-            state.extras_trusted = True
         else:
             state.compressor = False
-            state.compressor_load = None
-            state.extras_trusted = False
+            state.compressor_load = 0
             _LOGGER.debug(
                 "%s: compressor reported active while the device is off (%s) — "
-                "reading discarded, likely a different model",
+                "reported as idle, the raw value is residual or belongs to another model",
                 self.mac,
                 raw_load,
             )

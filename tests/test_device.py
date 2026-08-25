@@ -194,12 +194,12 @@ def test_read_state_ignores_a_reply_to_another_request(device):
     assert answer[0x09] == 0x11
 
 
-def test_compressor_ignored_when_device_is_off(device):
-    """Compressor activity on a powered-off device means a foreign byte layout.
+def test_compressor_idle_when_device_is_off(device):
+    """A powered-off device cannot run its compressor, whatever the load byte says.
 
-    Compressor fields were derived on units of a single model. If another brand uses
-    that byte for something else, it will be non-zero while the device is off. An empty
-    sensor beats a plausible but wrong number.
+    The byte keeps a residual value for a while after the unit stops, and on another
+    brand it may hold something else entirely. Either way the compressor is idle, so
+    the reading is reported as such instead of leaving the sensors empty.
     """
     packet = bytearray(SENSOR_WORKING)
     packet[0x18] = 40
@@ -208,8 +208,7 @@ def test_compressor_ignored_when_device_is_off(device):
     device.parse_sensor(bytes(packet), state)
 
     assert state.compressor is False
-    assert state.compressor_load is None
-    assert state.extras_trusted is False
+    assert state.compressor_load == 0
 
 
 def test_compressor_trusted_when_device_is_on(device):
@@ -222,19 +221,6 @@ def test_compressor_trusted_when_device_is_on(device):
 
     assert state.compressor is True
     assert state.compressor_load == 50
-    assert state.extras_trusted is True
-
-
-def test_untrusted_extras_are_not_reported(device):
-    """When the byte layout is not trusted, output is not invented."""
-    packet = bytearray(SENSOR_WORKING)
-    packet[0x18] = 55
-    state = AcState(power=False)
-
-    device.parse_sensor(bytes(packet), state)
-
-    assert state.extras_trusted is False
-    assert state.compressor_load is None
 
 
 def test_target_temperature_is_clamped(device):

@@ -38,6 +38,5 @@ class AcCompressor(AcEntity, BinarySensorEntity):
         return f"{self.coordinator.device.mac}_compressor"
 
     @property
-    def is_on(self) -> bool | None:
-        state = self.coordinator.state
-        return state.compressor if state.extras_trusted else None
+    def is_on(self) -> bool:
+        return self.coordinator.state.compressor

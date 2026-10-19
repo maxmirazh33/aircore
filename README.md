@@ -3,7 +3,7 @@
 **English** · [Русский](README.ru.md)
 
 [![Checks](https://github.com/maxmirazh33/aircore/actions/workflows/validate.yml/badge.svg)](https://github.com/maxmirazh33/aircore/actions/workflows/validate.yml)
-[![HACS custom](https://img.shields.io/badge/HACS-custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+[![HACS default](https://img.shields.io/badge/HACS-default-41BDF5.svg)](https://hacs.xyz)
 [![Release](https://img.shields.io/github/v/release/maxmirazh33/aircore?display_name=tag&sort=semver)](https://github.com/maxmirazh33/aircore/releases)
 [![Coverage](https://img.shields.io/endpoint?url=https://maxmirazh33.github.io/aircore/coverage.json)](https://github.com/maxmirazh33/aircore/actions/workflows/validate.yml)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.12%2B-41BDF5.svg)](https://www.home-assistant.io)
@@ -39,8 +39,9 @@ temperature.
 
 ## Installation
 
-**Via HACS:** add this repository as a custom one, install the integration, restart Home
-Assistant.
+**Via HACS:** find **AirCore** in HACS, install the integration, restart Home Assistant.
+
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=maxmirazh33&repository=aircore&category=integration)
 
 **Manually:** copy `custom_components/aircore` into your configuration's
 `custom_components` folder and restart Home Assistant.

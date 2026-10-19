@@ -6,7 +6,7 @@
 [![HACS custom](https://img.shields.io/badge/HACS-custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Release](https://img.shields.io/github/v/release/maxmirazh33/aircore?display_name=tag&sort=semver)](https://github.com/maxmirazh33/aircore/releases)
 [![Coverage](https://img.shields.io/endpoint?url=https://maxmirazh33.github.io/aircore/coverage.json)](https://github.com/maxmirazh33/aircore/actions/workflows/validate.yml)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.8%2B-41BDF5.svg)](https://www.home-assistant.io)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.12%2B-41BDF5.svg)](https://www.home-assistant.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 # AirCore
